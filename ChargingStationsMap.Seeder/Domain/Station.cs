@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 
-using ChargingStationsMap.Seeder.Utils;
-
 namespace ChargingStationsMap.Seeder.Domain;
 
 public class Station
@@ -10,7 +8,7 @@ public class Station
     public string Id { get; set; } = default!;
     
     [JsonPropertyName("partitionKey")]
-    public string PartitionKey => SwissPostalCodeHelper.GetPartitionKeyFromPostalCode(Address?.PostalCode ?? "");
+    public string PartitionKey => Address.PostalCode;
     
     [JsonPropertyName("address")]
     public StationAddress Address { get; set; } = default!;

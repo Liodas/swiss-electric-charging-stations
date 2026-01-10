@@ -78,6 +78,30 @@ export default function ChargingStationsMap({ postalCode }: ChargingStationsMapP
     fetchStations();
   }, []);
 
+  // Zoom to postal code location
+  useEffect(() => {
+    if (!mapRef.current || !postalCode) return;
+
+    const map = mapRef.current;
+
+    // Use Mapbox Geocoding API to find the postal code location
+    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${postalCode}.json?country=CH&types=postcode&access_token=${MAPBOX_TOKEN}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.features && data.features.length > 0) {
+          const [lng, lat] = data.features[0].center;
+          map.flyTo({
+            center: [lng, lat],
+            zoom: 12,
+            duration: 1500
+          });
+        }
+      })
+      .catch(err => {
+        console.error('Error geocoding postal code:', err);
+      });
+  }, [postalCode, MAPBOX_TOKEN]);
+
   useEffect(() => {
     if (!mapRef.current || !mapLoaded || !stations.length) return;
 

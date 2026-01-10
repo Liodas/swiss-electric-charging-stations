@@ -15,11 +15,13 @@ public class CosmosSeeder
 {
     private readonly Container _container;
     private readonly ILogger<CosmosSeeder> _logger;
+    private readonly CosmosOptions _options;
 
     public CosmosSeeder(CosmosClient cosmosClient, IOptions<CosmosOptions> options, ILogger<CosmosSeeder> logger)
     {
-        var database = cosmosClient.GetDatabase(options.Value.DatabaseName);
-        _container = database.GetContainer(options.Value.ContainerName);
+        _options = options.Value;
+        var database = cosmosClient.GetDatabase(_options.DatabaseName);
+        _container = database.GetContainer(_options.ContainerName);
         _logger = logger;
     }
 
@@ -44,11 +46,11 @@ public class CosmosSeeder
         {
             var stations = await ParseStationsFromJson(jsonData);
             
-            // Limit to 100 stations for testing to avoid overwhelming the emulator
-            var limitedStations = stations.Take(100).ToList();
+            // Limit stations based on configuration to avoid overwhelming the emulator
+            var limitedStations = stations.Take(_options.MaxStationsToSeed).ToList();
             await BulkInsertStations(limitedStations);
             
-            _logger.LogInformation("Successfully seeded {Count} charging stations (limited from {OriginalCount} for testing)", 
+            _logger.LogInformation("Successfully seeded {Count} charging stations (limited from {OriginalCount} based on configuration)", 
                 limitedStations.Count, stations.Count);
         }
         catch (Exception ex)
@@ -144,7 +146,7 @@ public class CosmosSeeder
 
     private async Task BulkInsertStations(List<Station> stations)
     {
-        int batchSize = 50;
+        int batchSize = _options.BatchSize;
 
         _logger.LogInformation("Inserting {TotalStations} stations in batches of {BatchSize}", stations.Count, batchSize);
 

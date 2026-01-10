@@ -1,4 +1,10 @@
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Options;
+
+using ChargingStationsMap.Backend.Infrastructure;
+using ChargingStationsMap.Backend.Repositories;
+using ChargingStationsMap.Backend.Services;
+
 var program = new Program();
 await program.RunAsync(args);
 
@@ -40,6 +46,15 @@ public partial class Program
 
             return new CosmosClient(options.Endpoint, options.Key, clientOptions);
         });
+        
+        builder.Services.AddScoped<IChargingStationsRepository, ChargingStationsRepository>();
+        builder.Services.AddScoped<IChargingStationsService, ChargingStationsService>();
+
+
+    private static void ConfigureApp(WebApplication app)
+    {
+        app.MapControllers();
+    }
 
     private static async Task InitializeDatabaseAsync(WebApplication app)
     {

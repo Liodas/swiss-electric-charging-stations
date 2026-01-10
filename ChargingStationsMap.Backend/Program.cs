@@ -50,9 +50,15 @@ public partial class Program
         builder.Services.AddScoped<IChargingStationsRepository, ChargingStationsRepository>();
         builder.Services.AddScoped<IChargingStationsService, ChargingStationsService>();
 
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+    }
 
     private static void ConfigureApp(WebApplication app)
     {
+        app.UseSwagger();
+        app.UseSwaggerUI();
         app.MapControllers();
     }
 

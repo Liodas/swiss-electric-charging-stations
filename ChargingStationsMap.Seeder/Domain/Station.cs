@@ -20,7 +20,7 @@ public class Station
     public bool IsOpen24Hours { get; set; }
     
     [JsonPropertyName("geoCoordinates")]
-    public GeoCoordinates GeoCoordinates { get; set; } = default!;
+    public Coordinates Coordinates { get; set; } = default!;
 }
 
 public class StationAddress
@@ -44,7 +44,7 @@ public class ChargingStationName
     public string Value { get; set; } = default!;
 }
 
-public class GeoCoordinates
+public class Coordinates
 {
     [JsonPropertyName("latitude")]
     public double Latitude { get; set; }

@@ -136,7 +136,7 @@ public class CosmosSeeder
                     Value = name.Value!
                 }).ToList() ?? new List<ChargingStationName>(),
             IsOpen24Hours = evseRecord.IsOpen24Hours,
-            GeoCoordinates = new GeoCoordinates
+            Coordinates = new Coordinates
             {
                 Latitude = latitude,
                 Longitude = longitude

@@ -50,6 +50,16 @@ public partial class Program
         builder.Services.AddScoped<IChargingStationsRepository, ChargingStationsRepository>();
         builder.Services.AddScoped<IChargingStationsService, ChargingStationsService>();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:3000", "https://localhost:3000")
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
+            });
+        });
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -57,6 +67,7 @@ public partial class Program
 
     private static void ConfigureApp(WebApplication app)
     {
+        app.UseCors("AllowFrontend");
         app.UseSwagger();
         app.UseSwaggerUI();
         app.MapControllers();

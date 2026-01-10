@@ -5,4 +5,5 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.56.0" />
 </Project>

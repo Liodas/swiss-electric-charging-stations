@@ -14,14 +14,14 @@ public class ChargingStationsController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("/")]
+    [HttpGet]
     public async Task<IActionResult> GetAllStations()
     {
         var stations = await _service.GetAllStationsAsync();
         return Ok(stations);
     }
 
-    [HttpGet("/postalCode")]
+    [HttpGet("postalCode")]
     public async Task<IActionResult> GetStationsByPostalCode([FromQuery] string postalCode, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
         if (page < 1)

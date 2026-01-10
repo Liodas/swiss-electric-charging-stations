@@ -26,7 +26,8 @@ namespace ChargingStationsMap.Backend.Repositories
             
             var queryResultSetIterator = _container.GetItemQueryIterator<Dto.StationPosition>(
                 queryDefinition, 
-                requestOptions: queryRequestOptions);
+                requestOptions: queryRequestOptions
+            );
 
             var stations = new List<Dto.StationPosition>();
             while (queryResultSetIterator.HasMoreResults)

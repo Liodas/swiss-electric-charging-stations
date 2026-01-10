@@ -37,4 +37,64 @@ namespace ChargingStationsMap.Backend.Repositories
 
             return stations;
         }
+
+        public async Task<Dto.PaginatedResult<Domain.Station>> GetStationsByPostalCodeAsync(string postalCode, int page, int pageSize)
+        {
+            var countQuery = "SELECT VALUE COUNT(1) FROM c WHERE c.partitionKey = @postalCode";
+            var countQueryDefinition = new QueryDefinition(countQuery)
+                .WithParameter("@postalCode", postalCode);
+            
+            var countQueryRequestOptions = new QueryRequestOptions
+            {
+                PartitionKey = new PartitionKey(postalCode),
+            };
+            
+            var countQueryIterator = _container.GetItemQueryIterator<int>(
+                countQueryDefinition, 
+                requestOptions: countQueryRequestOptions);
+
+            var totalCount = 0;
+            while (countQueryIterator.HasMoreResults)
+            {
+                var countResult = await countQueryIterator.ReadNextAsync();
+                totalCount = countResult.FirstOrDefault();
+            }
+
+            var skip = (page - 1) * pageSize;
+            var query = "SELECT * FROM c WHERE c.partitionKey = @postalCode OFFSET @skip LIMIT @take";
+            var queryDefinition = new QueryDefinition(query)
+                .WithParameter("@postalCode", postalCode)
+                .WithParameter("@skip", skip)
+                .WithParameter("@take", pageSize);
+
+            var queryRequestOptions = new QueryRequestOptions
+            {
+                PartitionKey = new PartitionKey(postalCode),
+            };
+            
+            var queryResultSetIterator = _container.GetItemQueryIterator<Domain.Station>(
+                queryDefinition, 
+                requestOptions: queryRequestOptions);
+
+            var stations = new List<Domain.Station>();
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                var currentResultSet = await queryResultSetIterator.ReadNextAsync();
+                stations.AddRange(currentResultSet);
+            }
+
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+            return new Dto.PaginatedResult<Domain.Station>
+            {
+                Items = stations,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasNextPage = page < totalPages,
+                HasPreviousPage = page > 1
+            };
+        }
+    }
 }

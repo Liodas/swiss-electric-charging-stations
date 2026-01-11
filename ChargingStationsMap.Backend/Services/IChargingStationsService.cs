@@ -4,5 +4,6 @@ namespace ChargingStationsMap.Backend.Services
     {
         Task<IEnumerable<Dto.StationPosition>> GetAllStationsAsync();
         Task<Dto.PaginatedResult<Dto.Station>> GetStationsByPostalCodeAsync(string postalCode, int page, int pageSize);
+        Task<Dto.Station?> GetStationByIdAsync(string stationId);
     }
 }

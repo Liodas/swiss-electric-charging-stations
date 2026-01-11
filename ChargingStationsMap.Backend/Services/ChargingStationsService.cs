@@ -33,5 +33,15 @@ namespace ChargingStationsMap.Backend.Services
                 HasPreviousPage = paginatedStations.HasPreviousPage
             };
         }
+
+        public async Task<Dto.Station?> GetStationByIdAsync(string stationId)
+        {
+            var station = await _repository.GetStationByIdAsync(stationId);
+            
+            if (station == null)
+                return null;
+                
+            return Dto.StationHelpers.FromDomain(station);
+        }
     }
 }

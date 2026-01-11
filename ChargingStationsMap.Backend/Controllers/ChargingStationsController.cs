@@ -33,4 +33,18 @@ public class ChargingStationsController : ControllerBase
         var paginatedStations = await _service.GetStationsByPostalCodeAsync(postalCode, page, pageSize);
         return Ok(paginatedStations);
     }
+
+    [HttpGet("{stationId}")]
+    public async Task<IActionResult> GetStationById(string stationId)
+    {
+        if (string.IsNullOrWhiteSpace(stationId))
+            return BadRequest("Station ID cannot be null or empty.");
+            
+        var station = await _service.GetStationByIdAsync(stationId);
+        
+        if (station == null)
+            return NotFound($"Station with ID '{stationId}' not found.");
+            
+        return Ok(station);
+    }
 }

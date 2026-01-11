@@ -97,5 +97,37 @@ namespace ChargingStationsMap.Backend.Repositories
                 HasPreviousPage = page > 1
             };
         }
+
+        public async Task<Domain.Station?> GetStationByIdAsync(string stationId)
+        {
+            try
+            {
+                var query = "SELECT * FROM c WHERE c.id = @stationId";
+                var queryDefinition = new QueryDefinition(query)
+                    .WithParameter("@stationId", stationId);
+                
+                var queryRequestOptions = new QueryRequestOptions
+                {
+                    MaxItemCount = 1
+                };
+                
+                var queryResultSetIterator = _container.GetItemQueryIterator<Domain.Station>(
+                    queryDefinition, 
+                    requestOptions: queryRequestOptions
+                );
+
+                while (queryResultSetIterator.HasMoreResults)
+                {
+                    var currentResultSet = await queryResultSetIterator.ReadNextAsync();
+                    return currentResultSet.FirstOrDefault();
+                }
+
+                return null;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
     }
 }

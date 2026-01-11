@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { StationPosition } from '@/types/station';
+import { StationPosition, Station } from '@/types/station';
 import { apiClient } from '@/lib/api-client';
+import StationPopup from './StationPopup';
 
 interface ChargingStationsMapProps {
   postalCode?: string;
@@ -17,6 +18,12 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
   const [stations, setStations] = useState<StationPosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [_, setError] = useState<string | null>(null);
+  
+  const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isLoadingStation, setIsLoadingStation] = useState(false);
+  const [popupPosition, setPopupPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [stationCoordinates, setStationCoordinates] = useState<{ lng: number; lat: number } | null>(null);
 
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.your-mapbox-token-here';
 
@@ -79,13 +86,41 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
     fetchStations();
   }, []);
 
+  const updatePopupPosition = React.useCallback(() => {
+    if (mapRef.current && stationCoordinates && isPopupOpen) {
+      const point = mapRef.current.project([stationCoordinates.lng, stationCoordinates.lat]);
+      setPopupPosition({ x: point.x, y: point.y });
+    }
+  }, [stationCoordinates, isPopupOpen]);
+
+  const fetchStationDetails = React.useCallback(async (stationId: string, lng: number, lat: number) => {
+    try {
+      setIsLoadingStation(true);
+      setStationCoordinates({ lng, lat });
+      
+      // Update popup position based on coordinates
+      if (mapRef.current) {
+        const point = mapRef.current.project([lng, lat]);
+        setPopupPosition({ x: point.x, y: point.y });
+      }
+      
+      setIsPopupOpen(true);
+      const stationDetails = await apiClient.getStationById(stationId);
+      setSelectedStation(stationDetails);
+    } catch (err) {
+      console.error('Error fetching station details:', err);
+      setError('Failed to load station details');
+    } finally {
+      setIsLoadingStation(false);
+    }
+  }, []);
+
   // Zoom to postal code location
   useEffect(() => {
     if (!mapRef.current || !postalCode) return;
 
     const map = mapRef.current;
 
-    // Use Mapbox Geocoding API to find the postal code location
     fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${postalCode}.json?country=CH&types=postcode&access_token=${MAPBOX_TOKEN}`)
       .then(res => res.json())
       .then(data => {
@@ -237,7 +272,62 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
       map.getCanvas().style.cursor = '';
     });
 
-  }, [stations, mapLoaded]);
+    // Click handler for unclustered points - show station details
+    map.on('click', 'unclustered-point', (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ['unclustered-point']
+      });
+      
+      if (!features.length) return;
+      
+      const stationId = features[0].properties?.id;
+      if (stationId && features[0].geometry && features[0].geometry.type === 'Point') {
+        const [lng, lat] = features[0].geometry.coordinates;
+        fetchStationDetails(stationId, lng, lat);
+      }
+    });
+
+    // Click handler for map - close popup
+    map.on('click', (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ['unclustered-point', 'clusters']
+      });
+      
+      // If clicking on empty map area, close popup
+      if (!features.length) {
+        setIsPopupOpen(false);
+        setSelectedStation(null);
+        setStationCoordinates(null);
+      }
+    });
+
+    map.on('mouseenter', 'unclustered-point', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'unclustered-point', () => {
+      map.getCanvas().style.cursor = '';
+    });
+
+  }, [stations, mapLoaded, fetchStationDetails]);
+
+  // Separate useEffect to handle popup position updates
+  React.useEffect(() => {
+    if (!mapRef.current) return;
+
+    const map = mapRef.current;
+    
+    map.on('move', updatePopupPosition);
+    map.on('zoom', updatePopupPosition);
+    map.on('rotate', updatePopupPosition);
+    map.on('pitch', updatePopupPosition);
+
+    return () => {
+      map.off('move', updatePopupPosition);
+      map.off('zoom', updatePopupPosition);
+      map.off('rotate', updatePopupPosition);
+      map.off('pitch', updatePopupPosition);
+    };
+  }, [updatePopupPosition]);
 
   const zoomToStation = (stationId: string) => {
     if (!mapRef.current) return;
@@ -276,6 +366,19 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
           </div>
         </div>
       )}
+      
+      {/* Station Details Popup */}
+      <StationPopup
+        isOpen={isPopupOpen}
+        isLoading={isLoadingStation}
+        station={selectedStation}
+        position={popupPosition}
+        onClose={() => {
+          setIsPopupOpen(false);
+          setSelectedStation(null);
+          setStationCoordinates(null);
+        }}
+      />
     </div>
   );
 }

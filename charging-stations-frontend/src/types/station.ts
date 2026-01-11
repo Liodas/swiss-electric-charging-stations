@@ -2,6 +2,7 @@ export interface Station {
   id: string;
   name: string;
   address: string;
+  isOpen24Hours: boolean;
 }
 
 export interface StationPosition {

@@ -37,6 +37,10 @@ class ApiClient {
     return this.request<PaginatedResult<Station>>(`/api/ChargingStations/postalCode?postalCode=${postalCode}&page=${page}&pageSize=${pageSize}`);
   }
 
+  async getStationById(stationId: string): Promise<Station> {
+    return this.request<Station>(`/api/ChargingStations/${stationId}`);
+  }
+
 }
 
 export const apiClient = new ApiClient();

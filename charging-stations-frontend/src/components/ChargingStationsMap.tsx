@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import { StationPosition, Station } from '@/types/station';
 import { apiClient } from '@/lib/api-client';
 import StationPopup from './StationPopup';

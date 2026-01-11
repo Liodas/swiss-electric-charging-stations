@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { StationPosition } from '@/types/station';
@@ -6,16 +6,17 @@ import { apiClient } from '@/lib/api-client';
 
 interface ChargingStationsMapProps {
   postalCode?: string;
+  onMapRef?: (mapRef: { zoomToStation: (stationId: string) => void }) => void;
 }
 
-export default function ChargingStationsMap({ postalCode }: ChargingStationsMapProps) {
+export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingStationsMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   
   const [stations, setStations] = useState<StationPosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_, setError] = useState<string | null>(null);
 
   const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.your-mapbox-token-here';
 
@@ -238,22 +239,27 @@ export default function ChargingStationsMap({ postalCode }: ChargingStationsMapP
 
   }, [stations, mapLoaded]);
 
-  if (error) {
-    return (
-      <div className="h-[600px] flex items-center justify-center bg-gray-100 rounded-lg">
-        <div className="text-center">
-          <p className="text-red-600 mb-2">⚠️ {error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const zoomToStation = (stationId: string) => {
+    if (!mapRef.current) return;
 
+    const stationWithCoords = stations.find(s => s.id === stationId);
+    
+    if (stationWithCoords) {
+      const map = mapRef.current;
+      map.flyTo({
+        center: [stationWithCoords.longitude, stationWithCoords.latitude],
+        zoom: 15,
+        duration: 1500
+      });
+    }
+  };
+
+  // Expose map functions to parent component
+  React.useEffect(() => {
+    if (onMapRef) {
+      onMapRef({ zoomToStation });
+    }
+  }, [onMapRef, stations]);
   return (
     <div className="relative h-[600px] w-full rounded-lg overflow-hidden shadow-lg">
       <div 

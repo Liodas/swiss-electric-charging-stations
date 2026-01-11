@@ -1,5 +1,7 @@
-import { useState, lazy, Suspense } from 'react';
-
+import React, { useState, lazy, Suspense } from 'react';
+import { Station } from '@/types/station';
+import { apiClient } from '@/lib/api-client';
+import SearchResults from '@/components/SearchResults';
 import SearchBar from '@/components/SearchBar';
 const ChargingStationsMap = lazy(() => import('@/components/ChargingStationsMap'));
 
@@ -7,6 +9,11 @@ function App() {
   const [postalCode, setPostalCode] = useState('');
   const [activePostalCode, setActivePostalCode] = useState('');
   const [error, setError] = useState('');
+  
+  const [postalCodeStations, setPostalCodeStations] = useState<Station[]>([]);
+  const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
+  const [postalCodeError, setPostalCodeError] = useState<string | null>(null);
+  const [mapRef, setMapRef] = useState<any>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +36,46 @@ function App() {
       setPostalCode(value);
       setError('');
     }
+  };
+
+  // Fetch stations by postal code
+  React.useEffect(() => {
+    if (!activePostalCode) {
+      setPostalCodeStations([]);
+      return;
+    }
+
+    const fetchStationsByPostalCode = async () => {
+      try {
+        setIsLoadingPostalCode(true);
+        setPostalCodeError(null);
+        
+        const response = await apiClient.getStationsByPostalCode(activePostalCode);
+        setPostalCodeStations(response?.items || []);
+      } catch (err) {
+        setPostalCodeError('Failed to load stations for postal code');
+        console.error('Error fetching stations by postal code:', err);
+        setPostalCodeStations([]);
+      } finally {
+        setIsLoadingPostalCode(false);
+      }
+    };
+
+    fetchStationsByPostalCode();
+  }, [activePostalCode]);
+
+  const zoomToStation = (stationId: string) => {
+    if (mapRef && mapRef.zoomToStation) {
+      mapRef.zoomToStation(stationId);
+    }
+  };
+
+  const handleClear = () => {
+    setActivePostalCode('');
+    setPostalCode('');
+    setError('');
+    setPostalCodeStations([]);
+    setPostalCodeError(null);
   };
 
   return (
@@ -55,7 +102,7 @@ function App() {
               </div>
             </div>
           }>
-            <ChargingStationsMap postalCode={activePostalCode} />
+            <ChargingStationsMap postalCode={activePostalCode} onMapRef={setMapRef} />
           </Suspense>
         </div>
 
@@ -67,6 +114,13 @@ function App() {
           onClear={handleClear}
         />
 
+        <SearchResults
+          activePostalCode={activePostalCode}
+          isLoadingPostalCode={isLoadingPostalCode}
+          postalCodeError={postalCodeError}
+          postalCodeStations={postalCodeStations}
+          zoomToStation={zoomToStation}
+        />
       </main>
     </div>
   );

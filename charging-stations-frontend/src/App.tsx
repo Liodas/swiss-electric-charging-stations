@@ -3,9 +3,14 @@ import { Station } from '@/types/station';
 import { apiClient } from '@/lib/api-client';
 import SearchResults from '@/components/SearchResults';
 import SearchBar from '@/components/SearchBar';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { t } from '@/lib/i18n';
+import { useDocumentTitle } from '@/lib/useDocumentTitle';
+
 const ChargingStationsMap = lazy(() => import('@/components/ChargingStationsMap'));
 
 function App() {
+  useDocumentTitle();
   const [postalCode, setPostalCode] = useState('');
   const [activePostalCode, setActivePostalCode] = useState('');
   const [error, setError] = useState('');
@@ -84,8 +89,9 @@ function App() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-6 flex-shrink-0">
           <h1 className="text-2xl font-bold text-gray-900">
-            Swiss EV Charging Stations
+            {t('webpage-title')}
           </h1>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -98,7 +104,7 @@ function App() {
             <div className="h-[600px] w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="text-gray-600">Loading map...</span>
+                <span className="text-gray-600">{t('website-loading')}</span>
               </div>
             </div>
           }>

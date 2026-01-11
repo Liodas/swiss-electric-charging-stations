@@ -1,0 +1,14 @@
+{
+    "webpage-title": "Stations de recharge des VE en Suisse",
+    "search-bar-placeholder": "Code postal (ex: 2540)",
+    "search-bar-search": "Chercher",
+    "search-results-title": "Stations de recharge pour le code postal {%d}",
+    "search-results-count-message": "{%d} stations trouvées",
+    "website-tab-name": "Stations de recharge suisses de véhicules électriques  ",
+    "website-loading": "Chargement...",
+    "map-station-popup-error": "Erreur lors du chargement des détails",
+    "search-results-loading": "Chargement des stations...",
+    "search-results-empty": "Aucune station de recharge trouvée",
+    "language-switcher-english": "Anglais",
+    "language-switcher-french": "Français"
+}

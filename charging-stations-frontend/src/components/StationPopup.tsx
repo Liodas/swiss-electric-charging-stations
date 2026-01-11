@@ -1,4 +1,5 @@
 import { Station } from '@/types/station';
+import { t } from '@/lib/i18n';
 
 interface StationPopupProps {
   isOpen: boolean;
@@ -46,25 +47,17 @@ export default function StationPopup({
         {isLoading ? (
           <div className="flex items-center justify-center py-4">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600 text-sm">Loading...</span>
+            <span className="ml-2 text-gray-600 text-sm">{t('website-loading')}</span>
           </div>
         ) : station ? (
           <div className="space-y-2">
             <div>
               <p className="text-gray-600 text-sm">{station.address}</p>
             </div>
-            
-            {!station.isOpen24Hours && (
-              <div>
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                  Limited Hours
-                </span>
-              </div>
-            )}
           </div>
         ) : (
           <div className="text-center py-3 text-gray-500 text-sm">
-            Failed to load details
+            {t('map-station-popup-error')}
           </div>
         )}
         

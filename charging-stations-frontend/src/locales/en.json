@@ -1,0 +1,14 @@
+{
+    "webpage-title": "Swiss EV Charging Stations",
+    "search-bar-placeholder": "Postal code (e.g. 2540)",
+    "search-bar-search": "Search",
+    "search-results-title": "Charging stations in postal code {%d}",
+    "search-results-count-message": "Found {%d} charging stations",
+    "website-tab-name": "Swiss Electric Vehicle Charging Stations",
+    "website-loading": "Loading...",
+    "map-station-popup-error": "Failed to load details",
+    "search-results-loading": "Loading stations...",
+    "search-results-empty": "No charging stations found.",
+    "language-switcher-english": "English",
+    "language-switcher-french": "French"
+}

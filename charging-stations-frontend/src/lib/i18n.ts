@@ -35,14 +35,13 @@ i18n
     },
   });
 
-// Custom function to handle localise.biz interpolation format {%d}
-export const t = (key: string, options?: { count?: number; [key: string]: unknown }) => {
-  let translation = i18n.t(key, options);
+export const t = (key: string, ...args: (string | number)[]) => {
+  let translation = i18n.t(key);
   
-  // Replace {%d} with the count value
-  if (options?.count !== undefined) {
-    translation = translation.replace(/\{%d\}/g, options.count.toString());
-  }
+  // Replace numbered placeholders {0}, {1}, {2}, etc. with provided arguments
+  args.forEach((arg, index) => {
+    translation = translation.replace(new RegExp(`\\{${index}\\}`, 'g'), String(arg));
+  });
   
   return translation;
 };

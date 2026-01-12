@@ -26,7 +26,8 @@ public partial class Program
         
         await InitializeDatabaseAsync(app);
         
-        app.Run();
+        logger.LogInformation("Seeding completed. Exiting application.");
+        await app.StopAsync();
     }
 
     private static void ConfigureServices(HostApplicationBuilder builder)

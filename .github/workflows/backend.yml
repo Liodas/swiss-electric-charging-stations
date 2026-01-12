@@ -1,0 +1,51 @@
+name: Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ChargingStationsMap.Backend/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'ChargingStationsMap.Backend/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  WORKING_DIRECTORY: './ChargingStationsMap.Backend'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    name: Build and Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      
+    - name: Publish application
+      run: dotnet publish --configuration Release --output ./publish
+      working-directory: ${{ env.WORKING_DIRECTORY }}
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-artifacts
+        path: ${{ env.WORKING_DIRECTORY }}/publish/
+        retention-days: 30

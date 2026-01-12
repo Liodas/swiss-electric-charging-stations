@@ -57,7 +57,7 @@ function App() {
         setIsLoadingPostalCode(true);
         setPostalCodeError(null);
         
-        const response = await apiClient.getStationsByPostalCode(activePostalCode, currentPage, 10);
+        const response = await apiClient.getStationsByPostalCode(activePostalCode, currentPage, 9);
         setPaginationData(response);
       } catch (err) {
         setPostalCodeError('Failed to load stations for postal code');
@@ -89,7 +89,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-6 flex-shrink-0">
           <h1 className="text-2xl font-bold text-gray-900">
             {t('webpage-title')}

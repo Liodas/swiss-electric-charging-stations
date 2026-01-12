@@ -22,13 +22,13 @@ public class ChargingStationsController : ControllerBase
     }
 
     [HttpGet("postalCode")]
-    public async Task<IActionResult> GetStationsByPostalCode([FromQuery] string postalCode, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetStationsByPostalCode([FromQuery] string postalCode, [FromQuery] int page = 1, [FromQuery] int pageSize = 9)
     {
         if (page < 1)
             return BadRequest("Page must be greater than 0.");
         
-        if (pageSize < 1 || pageSize > 100)
-            return BadRequest("Page size must be between 1 and 100.");
+        if (pageSize < 1 || pageSize > 9)
+            return BadRequest("Page size must be between 1 and 9.");
         
         var paginatedStations = await _service.GetStationsByPostalCodeAsync(postalCode, page, pageSize);
         return Ok(paginatedStations);

@@ -28,16 +28,16 @@ export default function StationPopup({
         overflowY: 'auto'
       }}
     >
-      <div className="p-3 relative">
-        <div className="flex justify-between items-center mb-2">
+      <div className="p-2 relative">
+        <div className="flex justify-between items-start mb-1">
           {station ? (
-            <p className="text-gray-900 font-medium text-sm pr-2">{station.name}</p>
+            <p className="text-gray-900 font-medium text-sm pr-2 leading-tight">{station.name}</p>
           ) : (
             <div></div>
           )}
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-lg leading-none flex-shrink-0"
+            className="text-gray-400 hover:text-gray-600 text-lg leading-none flex-shrink-0 -mt-1"
             aria-label="Close popup"
           >
             ×
@@ -45,28 +45,24 @@ export default function StationPopup({
         </div>
         
         {isLoading ? (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+          <div className="flex items-center justify-center py-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
             <span className="ml-2 text-gray-600 text-sm">{t('website-loading')}</span>
           </div>
         ) : station ? (
-          <div className="space-y-2">
-            <div>
-              <p className="text-gray-600 text-sm">{station.address}</p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-start">
+              <p className="text-gray-600 text-sm leading-tight flex-1">{station.address}</p>
+              {station.isOpen24Hours && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-500 text-white ml-2 flex-shrink-0">
+                  24/7
+                </span>
+              )}
             </div>
           </div>
         ) : (
-          <div className="text-center py-3 text-gray-500 text-sm">
+          <div className="text-center py-2 text-gray-500 text-sm">
             {t('map-station-popup-error')}
-          </div>
-        )}
-        
-        {/* 24/7 Badge in bottom right corner */}
-        {station && station.isOpen24Hours && (
-          <div className="absolute bottom-1 right-1">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold bg-green-500 text-white">
-              24/7
-            </span>
           </div>
         )}
       </div>

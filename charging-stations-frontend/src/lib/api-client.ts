@@ -33,7 +33,7 @@ class ApiClient {
     return this.request<StationPosition[]>(endpoint);
   }
 
-  async getStationsByPostalCode(postalCode: string, page: number = 1, pageSize: number = 10): Promise<PaginatedResult<Station>> {
+  async getStationsByPostalCode(postalCode: string, page: number = 1, pageSize: number = 9): Promise<PaginatedResult<Station>> {
     return this.request<PaginatedResult<Station>>(`/api/ChargingStations/postalCode?postalCode=${postalCode}&page=${page}&pageSize=${pageSize}`);
   }
 

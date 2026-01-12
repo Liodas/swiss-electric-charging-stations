@@ -28,9 +28,6 @@ export default function SearchResultsResults({
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        {t('search-results-title', parseInt(activePostalCode))}
-      </h3>
       
       {isLoadingPostalCode && (
         <div className="flex items-center space-x-2 py-4">
@@ -71,22 +68,20 @@ export default function SearchResultsResults({
           </div>
           
           {/* Stations Grid */}
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {stations.map((station) => (
               <div 
                 key={station.id}
                 onClick={() => zoomToStation(station.id)}
-                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 hover:border-blue-300 transition-colors cursor-pointer"
+                className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 hover:border-blue-300 transition-colors cursor-pointer"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-800 mb-1">
-                      {station.name}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      {station.address}
-                    </p>
-                  </div>
+                <div className="flex flex-col">
+                  <h4 className="font-medium text-gray-800 text-sm mb-1 line-clamp-2">
+                    {station.name}
+                  </h4>
+                  <p className="text-xs text-gray-600 line-clamp-2">
+                    {station.address}
+                  </p>
                 </div>
               </div>
             ))}

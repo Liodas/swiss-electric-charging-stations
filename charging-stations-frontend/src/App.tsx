@@ -18,7 +18,7 @@ function App() {
   const [postalCodeStations, setPostalCodeStations] = useState<Station[]>([]);
   const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
   const [postalCodeError, setPostalCodeError] = useState<string | null>(null);
-  const [mapRef, setMapRef] = useState<any>(null);
+  const [mapRef, setMapRef] = useState<{ zoomToStation: (stationId: string) => void } | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +70,7 @@ function App() {
   }, [activePostalCode]);
 
   const zoomToStation = (stationId: string) => {
-    if (mapRef && mapRef.zoomToStation) {
+    if (mapRef) {
       mapRef.zoomToStation(stationId);
     }
   };

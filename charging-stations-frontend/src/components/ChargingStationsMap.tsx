@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { StationPosition, Station } from '@/types/station';
 import { apiClient } from '@/lib/api-client';
@@ -16,7 +16,7 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
   
   const [stations, setStations] = useState<StationPosition[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -328,7 +328,7 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
     };
   }, [updatePopupPosition]);
 
-  const zoomToStation = (stationId: string) => {
+  const zoomToStation = useCallback((stationId: string) => {
     if (!mapRef.current) return;
 
     const stationWithCoords = stations.find(s => s.id === stationId);
@@ -341,14 +341,14 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
         duration: 1500
       });
     }
-  };
+  }, [stations]);
 
   // Expose map functions to parent component
   React.useEffect(() => {
     if (onMapRef) {
       onMapRef({ zoomToStation });
     }
-  }, [onMapRef, stations]);
+  }, [onMapRef, zoomToStation]);
   return (
     <div className="relative h-[600px] w-full rounded-lg overflow-hidden shadow-lg">
       <div 
@@ -363,6 +363,12 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
             <span className="text-gray-600">Loading stations...</span>
           </div>
+        </div>
+      )}
+      
+      {error && (
+        <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-20">
+          {error}
         </div>
       )}
       

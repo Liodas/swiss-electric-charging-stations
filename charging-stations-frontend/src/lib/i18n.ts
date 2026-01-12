@@ -24,7 +24,7 @@ i18n
     
     interpolation: {
       escapeValue: false,
-      format: function(value, format, lng) {
+      format: function(value, format) {
         if (format === 'd') return value;
         return value;
       },
@@ -36,7 +36,7 @@ i18n
   });
 
 // Custom function to handle localise.biz interpolation format {%d}
-export const t = (key: string, options?: { count?: number; [key: string]: any }) => {
+export const t = (key: string, options?: { count?: number; [key: string]: unknown }) => {
   let translation = i18n.t(key, options);
   
   // Replace {%d} with the count value

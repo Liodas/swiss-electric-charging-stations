@@ -337,11 +337,13 @@ export default function ChargingStationsMap({ postalCode, onMapRef }: ChargingSt
       const map = mapRef.current;
       map.flyTo({
         center: [stationWithCoords.longitude, stationWithCoords.latitude],
-        zoom: 15,
-        duration: 1500
+        zoom: 16,
+        duration: 1200
       });
+      
+      fetchStationDetails(stationId, stationWithCoords.longitude, stationWithCoords.latitude);
     }
-  }, [stations]);
+  }, [stations, fetchStationDetails]);
 
   // Expose map functions to parent component
   React.useEffect(() => {

@@ -4,12 +4,15 @@ import { apiClient } from '@/lib/api-client';
 import SearchResults from '@/components/SearchResults';
 import SearchBar from '@/components/SearchBar';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import { t } from '@/lib/i18n';
 import { useDocumentTitle } from '@/lib/useDocumentTitle';
+import { useTheme } from '@/lib/theme';
 
 const ChargingStationsMap = lazy(() => import('@/components/ChargingStationsMap'));
 
 function App() {
+  const { theme } = useTheme();
   useDocumentTitle();
   const [postalCode, setPostalCode] = useState('');
   const [activePostalCode, setActivePostalCode] = useState('');
@@ -87,14 +90,17 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-6 flex-shrink-0">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors duration-200">
             {t('webpage-title')}
           </h1>
-          <LanguageSwitcher />
+          <div className="flex items-center space-x-4">
+            <ThemeToggle />
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
@@ -102,12 +108,12 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Map Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-200">
           <Suspense fallback={
-            <div className="h-[600px] w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 flex items-center justify-center">
+            <div className="h-[600px] w-full rounded-lg overflow-hidden shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition-colors duration-200">
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                <span className="text-gray-600">{t('website-loading')}</span>
+                <span className="text-gray-600 dark:text-gray-300">{t('website-loading')}</span>
               </div>
             </div>
           }>

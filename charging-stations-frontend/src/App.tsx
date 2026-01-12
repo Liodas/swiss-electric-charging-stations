@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Station } from '@/types/station';
+import { Station, PaginatedResult } from '@/types/station';
 import { apiClient } from '@/lib/api-client';
 import SearchResults from '@/components/SearchResults';
 import SearchBar from '@/components/SearchBar';
@@ -15,7 +15,8 @@ function App() {
   const [activePostalCode, setActivePostalCode] = useState('');
   const [error, setError] = useState('');
   
-  const [postalCodeStations, setPostalCodeStations] = useState<Station[]>([]);
+  const [paginationData, setPaginationData] = useState<PaginatedResult<Station> | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingPostalCode, setIsLoadingPostalCode] = useState(false);
   const [postalCodeError, setPostalCodeError] = useState<string | null>(null);
   const [mapRef, setMapRef] = useState<{ zoomToStation: (stationId: string) => void } | null>(null);
@@ -32,6 +33,7 @@ function App() {
     
     setError('');
     setActivePostalCode(trimmed);
+    setCurrentPage(1);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +48,7 @@ function App() {
   // Fetch stations by postal code
   React.useEffect(() => {
     if (!activePostalCode) {
-      setPostalCodeStations([]);
+      setPaginationData(null);
       return;
     }
 
@@ -55,19 +57,19 @@ function App() {
         setIsLoadingPostalCode(true);
         setPostalCodeError(null);
         
-        const response = await apiClient.getStationsByPostalCode(activePostalCode);
-        setPostalCodeStations(response?.items || []);
+        const response = await apiClient.getStationsByPostalCode(activePostalCode, currentPage, 10);
+        setPaginationData(response);
       } catch (err) {
         setPostalCodeError('Failed to load stations for postal code');
         console.error('Error fetching stations by postal code:', err);
-        setPostalCodeStations([]);
+        setPaginationData(null);
       } finally {
         setIsLoadingPostalCode(false);
       }
     };
 
     fetchStationsByPostalCode();
-  }, [activePostalCode]);
+  }, [activePostalCode, currentPage]);
 
   const zoomToStation = (stationId: string) => {
     if (mapRef) {
@@ -75,11 +77,12 @@ function App() {
     }
   };
 
-  const handleClear = () => {
+  const handlePageChange = (newPage: number) => {    setCurrentPage(newPage);  };  const handleClear = () => {
     setActivePostalCode('');
     setPostalCode('');
     setError('');
-    setPostalCodeStations([]);
+    setPaginationData(null);
+    setCurrentPage(1);
     setPostalCodeError(null);
   };
 
@@ -124,7 +127,8 @@ function App() {
           activePostalCode={activePostalCode}
           isLoadingPostalCode={isLoadingPostalCode}
           postalCodeError={postalCodeError}
-          postalCodeStations={postalCodeStations}
+          paginationData={paginationData}
+          onPageChange={handlePageChange}
           zoomToStation={zoomToStation}
         />
       </main>
